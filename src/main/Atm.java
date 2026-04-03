@@ -2,11 +2,12 @@ package main;
 
 import java.util.Scanner;
 import java.lang.Thread;
+import java.math.BigDecimal;
 
 public class Atm {
 	String nome;
 	String senha;
-	double saldo = 0.0;
+	BigDecimal saldo = new BigDecimal("0.0");
 	Scanner scanner = new Scanner(System.in);
 
 	public static void main(String[] args) throws InterruptedException {
@@ -66,13 +67,14 @@ public class Atm {
 		}
 	}
 
-	private double inputSanitizadoDinheiro() {
+	private BigDecimal inputSanitizadoDinheiro() {
 		String input = scanner.next() // + Processo de sanitização
-						.replaceAll("[^0-9\\.\\-]", "")
+						.replaceAll("[^0-9\\.]", "")
 						.replaceAll("\\.", ",")
-						.replaceFirst("\\,", ".");
+						.replaceFirst("\\,", ".")
+						.replaceAll("[^0-9\\.]", "");
 		
-		return Double.parseDouble(String.format("%.02f", Double.parseDouble(input.isEmpty() ? "0" : input)).replaceFirst("\\,", "."));
+		return new BigDecimal(String.format("%.02f", Double.parseDouble(input.isEmpty() || input.equals(".")? "0" : input)).replaceFirst("\\,", "."));
 	}
 
 	public void definirNome() {
@@ -175,7 +177,7 @@ public class Atm {
 
 						=====================================================================
 						|                    Insira o valor do depósito                     |
-						| * Valores abaixo de zero ou sem digitação cancelam a operação.    |
+						| * Valor zero cancela a operação.                                  |
 						| * O campo é sanitizado e salva apenas os centésimos.              |
 						| * É aceito apenas números e o primeiro "." no valor               |
 						=====================================================================
@@ -183,10 +185,10 @@ public class Atm {
 				""");
 		System.out.print("-> ");
 
-		double valor = this.inputSanitizadoDinheiro();
+		BigDecimal valor = this.inputSanitizadoDinheiro();
 
-		if (valor > 0) {
-			saldo += valor;
+		if (valor.floatValue() > 0) {
+			saldo = saldo.add(valor);
 			return String.format("Valor de R$ %.02f depositado!", valor);
 		} else {
 			return "Valor de depósito cancelado.";
@@ -199,7 +201,7 @@ public class Atm {
 
 						=====================================================================
 						|                    Insira o valor do saque                        |
-						| * Valores abaixo de zero ou sem digitação cancelam a operação.    |
+						| * Valor zero cancela a operação.                                  |
 						| * O campo é sanitizado e salva apenas os centésimos.              |
 						| * É aceito apenas números e o primeiro "." no valor               |
 						=====================================================================
@@ -208,10 +210,10 @@ public class Atm {
 		System.out.print("-> ");
 
 
-		double valor = this.inputSanitizadoDinheiro();
+		BigDecimal valor = this.inputSanitizadoDinheiro();
 
-		if (valor > 0 && valor <= saldo) {
-			saldo -= valor;
+		if (valor.floatValue() > 0 && valor.floatValue() <= saldo.floatValue()) {
+			saldo = saldo.subtract(valor);
 			return  String.format("Valor de R$ %.02f sacado!", valor);
 		} else {
 			return "Valor cancelado.";
