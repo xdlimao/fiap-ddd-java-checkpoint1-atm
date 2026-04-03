@@ -68,7 +68,7 @@ public class Atm {
 
 	private double inputSanitizadoDinheiro() {
 		String input = scanner.next() // + Processo de sanitização
-						.replaceAll("[^0-9\\.]", "")
+						.replaceAll("[^0-9\\.\\-]", "")
 						.replaceAll("\\.", ",")
 						.replaceFirst("\\,", ".");
 		
